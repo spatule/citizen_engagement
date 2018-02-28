@@ -47,4 +47,11 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
+
+exports.generateJsonErrorMessage = function (message){
+    return {"status" : "error",
+        "msg" : message
+    };
+}
 module.exports = app;
+
