@@ -16,6 +16,21 @@ router.get('/:user_id', function (req, res, next) {
     });
 });
 
+router.get('/', function (req, res, next) {
+    User.find({}, function (err, users) {
+        if (err) {
+            res.send(app.generateJsonErrorMessage("Error while trying to retrieve all users."));
+        } else {
+            var userMap = {};
+            users.forEach(function (user) {
+                userMap[user._id] = user;
+            });
+
+            res.send(userMap);
+        }
+    });
+});
+
 router.post('/', function (req, res, next) {
     var user = new User(req.body);
     user.save(function (error, saved_user) {
