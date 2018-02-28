@@ -27,5 +27,8 @@ const userSchema = new Schema({
         default: Date.now // Default value
     }
 });
+
+userSchema.index({firstName: 1, lastName: 1}, {unique: true});
+
 // Create the user model and export it
 module.exports = mongoose.model('User', userSchema);
