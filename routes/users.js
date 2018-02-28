@@ -5,7 +5,7 @@ var mongoose = require('../app').mangoose;
 /* GET users listing. */
 
 router.get('/:user_id', function (req, res, next) {
-    res.send("USER 1");
+    res.send({"name":"bonjour"});
 });
 
 router.post('/:user_id', function (req, res, next) {

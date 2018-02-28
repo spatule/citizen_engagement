@@ -11,6 +11,7 @@ var users = require('./routes/users');
 var issues = require('./routes/issues');
 
 var app = express();
+
 mongoose.connect(process.env.MONGODB_URI);
 
 // view engine setup
