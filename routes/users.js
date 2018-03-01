@@ -8,6 +8,20 @@ const ObjectId = mongoose.Types.ObjectId;
 
 /* GET users listing. */
 
+/**
+ * @api {get} /users/:user_id Request a user's information
+ * @apiVersion 1.0.0
+ * @apiName GetUser
+ * @apiGroup User
+ * @apiParam {user_id} id Unique Identifier of the user
+ * @apiSuccess {Object} User User's informations
+ * @apiSuccess {String} User.role User's role
+ * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {String} User._id User's id
+ * @apiSuccess {String} User.firstName First name of the user 
+ * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiError UserNotFound The user with <code>id</code> could not be found.
+ */
 router.get('/:user_id', function (req, res, next) {
     User.findOne({"_id": req.params.user_id}, function (error, user_found) {
         if (error) {
@@ -19,6 +33,19 @@ router.get('/:user_id', function (req, res, next) {
     });
 });
 
+/**
+ * @api {get} /users/ Retrieve all users' informations
+ * @apiVersion 1.0.0
+ * @apiName GetUsers
+ * @apiGroup User
+ * @apiSuccess {Object[]} User User's informations
+ * @apiSuccess {String} User.role User's role
+ * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {String} User._id User's id
+ * @apiSuccess {String} User.firstName First name of the user 
+ * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiError UserNotFound The user with <code>id</code> could not be found.
+ */
 router.get('/', function (req, res, next) {
     User.find({}, function (err, users) {
         if (err) {
@@ -34,21 +61,67 @@ router.get('/', function (req, res, next) {
     });
 });
 
+/**
+ * @api {post} /users/ Insert a new user.
+ * @apiVersion 1.0.0
+ * @apiName addUser
+ * @apiGroup User
+ * @apiSuccess {Object} User User's informations
+ * @apiSuccess {String} User.role User's role
+ * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {String} User._id User's id
+ * @apiSuccess {String} User.firstName First name of the user 
+ * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiError UsersNotCreated The users could not be created.
+ */
 router.post('/', function (req, res, next) {
     var user = new User(req.body);
     user.save(function (error, saved_user) {
         if (error) {
-            res.send(error);
+            res.send(app.generateJsonErrorMessage("The users could not be created."));
         } else {
             res.send(saved_user);
         }
     });
 });
 
+/**
+ * @api {patch} /users/:user_id Update an existing user
+ * @apiVersion 1.0.0
+ * @apiName updateUser
+ * @apiGroup User
+ * @apiSuccess {Object} User Updated user's informations
+ * @apiSuccess {String} User.role User's role
+ * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {String} User._id User's id
+ * @apiSuccess {String} User.firstName First name of the user 
+ * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiError UserNotUpdated Unable to update the user with ID <code>id</code>
+ */
 router.patch('/:user_id', function (req, res, next) {
-    res.send('USER 1');
+    User.findByIdAndUpdate(req.params.user_id, {$set: req.body}, {new : false, runValidators: true}, function (error, user_updated) {
+        if (error) {
+            res.send(app.generateJsonErrorMessage("Unable to update the user with ID " + req.params.user_id));
+        } else {
+            res.send(user_updated);
+        }
+
+    });
 });
 
+/**
+ * @api {delete} /users/:user_id Delete an existing user
+ * @apiVersion 1.0.0
+ * @apiName deleteUser
+ * @apiGroup User
+ * @apiSuccess {Object} User Updated user's informations
+ * @apiSuccess {String} User.role User's role
+ * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {String} User._id User's id
+ * @apiSuccess {String} User.firstName First name of the user 
+ * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiError UserNotDeleted The users could not be deleted.
+ */
 router.delete('/:user_id', function (req, res, next) {
     const userId = req.params.user_id;
     User.findOne({"_id": userId}, function (error, user_found) {
