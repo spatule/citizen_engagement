@@ -165,7 +165,7 @@ router.delete('/:user_id', function (req, res, next) {
             });
         } else {
             res.status(404);
-            res.send(app.generateJsonErrorMessage("The user with id " + req.params.user_id + " could not be found."));
+            res.send(app.generateJsonErrorMessage("The user with id " + userId + " could not be found."));
         }
     });
 });

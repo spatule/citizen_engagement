@@ -4,6 +4,24 @@ var mongoose = require('../app').mangoose;
 var app = require('../app');
 var Issue = require("../models/issue");
 /* GET issues listing. */
+/**
+ * @api {get} /issues/:issue_id Request a issue's information
+ * @apiVersion 1.0.0
+ * @apiName GetIssue
+ * @apiGroup Issue
+ * @apiParam {issue_id} id Unique Identifier of the issue
+ * @apiSuccess {Object} Issue Issue's informations
+ * @apiSuccess {String} Issue.Description Issue's description
+ * @apiSuccess {Date} Issue.createdAt Date when the issue was created
+ * @apiSuccess {Double} Issue._id Issue's id
+ * @apiSuccess {Array} Issue.tags Issue's tags
+ * @apiSuccess {String} Issue.imageUrl Path to the issue's image
+ * @apiSuccess {Double} Issue.longitude Issue's longitude
+ * @apiSuccess {Double} Issue.latitude Issue's latitude
+ * @apiSuccess {Double} Issue.user The id of the user that created the issue
+ * @apiSuccess {String} Issue.status The status of the issue
+ * @apiError IssueNotFound The issue with <code>id</code> could not be found.
+ */
 router.get('/:issue_id', function(req, res, next) {
   Issue.findOne({"_id": req.params.issue_id}, function (error, issue_found) {
       if (error) {
@@ -50,8 +68,28 @@ router.patch('/:issue_id', function (req, res, next) {
         }
     });
 });
-router.delete('/:user_id', function (req, res, next) {
-  
+router.delete('/:issue_id', function (req, res, next) {
+    const issueId = req.params.issue_id;
+    Issue.findOne({"_id": issueId}, function (error, issue_found) {
+        if (error) {
+            if (ObjectId.isValid(issueId)) {
+                res.send(error);
+            } else {
+                next(error);
+            }
+        } else if (issue_found) {
+            issue_found.remove(function(error) {
+                if (error) {
+                    return next(error);
+                }
+                debug(`Deleted issue "${issue_found.description}"`);
+                res.sendStatus(204);
+            });
+        } else {
+            res.status(404);
+            res.send(app.generateJsonErrorMessage("The issue with id " + issueId + " could not be found."));
+        }
+    });
 });
 
 module.exports = router;
