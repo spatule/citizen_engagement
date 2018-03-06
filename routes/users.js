@@ -110,8 +110,10 @@ router.get('/', getAllUsers, function (req, res, next) {
 router.post('/', function (req, res, next) {
     var user = new User(req.body);
     user.save(function (error, saved_user) {
-        if (error) {
-            res.send(app.generateJsonErrorMessage("The users could not be created."));
+        if(error.name = "BulkWriteError") {
+           res.status(422).send("User " + req.body.firstName +" "+ req.body.lastName + " already exists!")
+        } else if (error) {
+            res.send(app.generateJsonErrorMessage("The user could not be created."));
         } else {
             res.send(saved_user);
         }
