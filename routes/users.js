@@ -4,6 +4,7 @@ var debug = require('debug')('users');
 var mongoose = require('mongoose');
 var app = require('../app');
 var User = require("../models/user");
+var Issue = require("../models/issue");
 const ObjectId = mongoose.Types.ObjectId;
 
 /* GET users listing. */
@@ -40,23 +41,46 @@ router.get('/:user_id', function (req, res, next) {
  * @apiGroup User
  * @apiSuccess {Object[]} User User's informations
  * @apiSuccess {String} User.role User's role
- * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
  * @apiSuccess {String} User.firstName First name of the user 
  * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiSuccess {Integer} User.issuesCount Additionnal field which is the number of issues reported by the user
  * @apiError UserNotFound The user with <code>id</code> could not be found.
  */
 router.get('/', function (req, res, next) {
-    User.find({}, function (err, users) {
-        if (err) {
+    exports.getAllUsers(function (users) {
+        if (users == null) {
             res.send(app.generateJsonErrorMessage("Error while trying to retrieve all users."));
         } else {
-            var userMap = {};
-            users.forEach(function (user) {
-                userMap[user._id] = user;
-            });
+            const user_ids = users.map(user => ObjectId(user._id));
+            
+            // count the number of issues reported by a user
+            Issue.aggregate([
+                {
+                    $match: {
+                        user: {$in: user_ids}
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$user',
+                        issuesCount: {
+                            $sum: 1
+                        }
+                    }
+                }
+            ], function (err, results) {
+                const usersJson = users.map(user => user.toJSON());
 
-            res.send(userMap);
+                // map issues count with the list of users got from DB and 
+                results.forEach(function (result) {
+                    const resultId = result._id.toString();
+                    const correspondingUser = usersJson.find(user => user._id == resultId);
+                    correspondingUser.issuesCount = result.issuesCount;
+                });
+                res.send(usersJson);
+            });
         }
     });
 });
@@ -68,7 +92,7 @@ router.get('/', function (req, res, next) {
  * @apiGroup User
  * @apiSuccess {Object} User User's informations
  * @apiSuccess {String} User.role User's role
- * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
  * @apiSuccess {String} User.firstName First name of the user 
  * @apiSuccess {String} User.lastName Last name of the user 
@@ -92,7 +116,7 @@ router.post('/', function (req, res, next) {
  * @apiGroup User
  * @apiSuccess {Object} User Updated user's informations
  * @apiSuccess {String} User.role User's role
- * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
  * @apiSuccess {String} User.firstName First name of the user 
  * @apiSuccess {String} User.lastName Last name of the user 
@@ -116,7 +140,7 @@ router.patch('/:user_id', function (req, res, next) {
  * @apiGroup User
  * @apiSuccess {Object} User Updated user's informations
  * @apiSuccess {String} User.role User's role
- * @apiSuccess {String} User.createdAt Date when the user was created
+ * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
  * @apiSuccess {String} User.firstName First name of the user 
  * @apiSuccess {String} User.lastName Last name of the user 
@@ -132,7 +156,7 @@ router.delete('/:user_id', function (req, res, next) {
                 next(error);
             }
         } else if (user_found) {
-            user_found.remove(function(error) {
+            user_found.remove(function (error) {
                 if (error) {
                     return next(error);
                 }
@@ -145,5 +169,15 @@ router.delete('/:user_id', function (req, res, next) {
         }
     });
 });
+
+exports.getAllUsers = function (callback) {
+
+    var users = User.find({}, function (err, users) {
+        if (err) {
+            callback(null);
+        }
+        callback(users);
+    });
+};
 
 module.exports = router;
