@@ -68,8 +68,28 @@ router.patch('/:issue_id', function (req, res, next) {
         }
     });
 });
-router.delete('/:user_id', function (req, res, next) {
-
+router.delete('/:issue_id', function (req, res, next) {
+    const issueId = req.params.issue_id;
+    Issue.findOne({"_id": issueId}, function (error, issue_found) {
+        if (error) {
+            if (ObjectId.isValid(issueId)) {
+                res.send(error);
+            } else {
+                next(error);
+            }
+        } else if (issue_found) {
+            issue_found.remove(function(error) {
+                if (error) {
+                    return next(error);
+                }
+                debug(`Deleted issue "${issue_found.description}"`);
+                res.sendStatus(204);
+            });
+        } else {
+            res.status(404);
+            res.send(app.generateJsonErrorMessage("The issue with id " + issueId + " could not be found."));
+        }
+    });
 });
 
 module.exports = router;
