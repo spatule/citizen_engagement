@@ -69,7 +69,7 @@ router.patch('/:issue_id', function (req, res, next) {
     });
 });
 router.delete('/:issue_id', function (req, res, next) {
-    const issueId = req.params.issue_id;
+    const issueId = req.params.issue_id; 
     Issue.findOne({"_id": issueId}, function (error, issue_found) {
         if (error) {
             if (ObjectId.isValid(issueId)) {

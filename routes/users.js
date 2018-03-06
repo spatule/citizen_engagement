@@ -7,6 +7,20 @@ var User = require("../models/user");
 var Issue = require("../models/issue");
 const ObjectId = mongoose.Types.ObjectId;
 
+
+/* MIDDLEWARES */
+
+// Get all users from DB
+var getAllUsers = function (req, res, next) {
+    var users = User.find({}, function (err, users) {
+        if (err) {
+            res.send(app.generateJsonErrorMessage("The users could not be retrieved."));
+        }
+        req.users = users;
+        next();
+    });
+};
+
 /* GET users listing. */
 
 /**
@@ -48,40 +62,35 @@ router.get('/:user_id', function (req, res, next) {
  * @apiSuccess {Integer} User.issuesCount Additionnal field which is the number of issues reported by the user
  * @apiError UserNotFound The user with <code>id</code> could not be found.
  */
-router.get('/', function (req, res, next) {
-    exports.getAllUsers(function (users) {
-        if (users == null) {
-            res.send(app.generateJsonErrorMessage("Error while trying to retrieve all users."));
-        } else {
-            const user_ids = users.map(user => ObjectId(user._id));
-            
-            // count the number of issues reported by a user
-            Issue.aggregate([
-                {
-                    $match: {
-                        user: {$in: user_ids}
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$user',
-                        issuesCount: {
-                            $sum: 1
-                        }
-                    }
-                }
-            ], function (err, results) {
-                const usersJson = users.map(user => user.toJSON());
+router.get('/', getAllUsers, function (req, res, next) {
+    var users = req.users;
+    const user_ids = users.map(user => ObjectId(user._id));
 
-                // map issues count with the list of users got from DB and 
-                results.forEach(function (result) {
-                    const resultId = result._id.toString();
-                    const correspondingUser = usersJson.find(user => user._id == resultId);
-                    correspondingUser.issuesCount = result.issuesCount;
-                });
-                res.send(usersJson);
-            });
+    // count the number of issues reported by a user
+    Issue.aggregate([
+        {
+            $match: {
+                user: {$in: user_ids}
+            }
+        },
+        {
+            $group: {
+                _id: '$user',
+                issuesCount: {
+                    $sum: 1
+                }
+            }
         }
+    ], function (err, results) {
+        const usersJson = users.map(user => user.toJSON());
+
+        // map issues count with the list of users got from DB and 
+        results.forEach(function (result) {
+            const resultId = result._id.toString();
+            const correspondingUser = usersJson.find(user => user._id == resultId);
+            correspondingUser.issuesCount = result.issuesCount;
+        });
+        res.send(usersJson);
     });
 });
 
@@ -170,14 +179,5 @@ router.delete('/:user_id', function (req, res, next) {
     });
 });
 
-exports.getAllUsers = function (callback) {
-
-    var users = User.find({}, function (err, users) {
-        if (err) {
-            callback(null);
-        }
-        callback(users);
-    });
-};
 
 module.exports = router;
