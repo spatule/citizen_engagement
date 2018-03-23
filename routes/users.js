@@ -125,7 +125,7 @@ router.post('/', function (req, res, next) {
             if(error.name = "BulkWriteError") {
                res.status(422).send("User " + req.body.firstName +" "+ req.body.lastName + " already exists!")
             } else {
-                res.send(app.generateJsonErrorMessage("The user could not be created."));
+                res.status(500).send(app.generateJsonErrorMessage("The user could not be created."));
             } 
         } else {
             res.send(saved_user);
@@ -149,11 +149,11 @@ router.post('/', function (req, res, next) {
 router.patch('/:user_id', function (req, res, next) {
     User.findByIdAndUpdate(req.params.user_id, {$set: req.body}, {new : false, runValidators: true}, function (error, user_updated) {
         if (error) {
-            res.send(app.generateJsonErrorMessage("Unable to update the user with ID " + req.params.user_id));
+            res.status(404).send(app.generateJsonErrorMessage("Unable to update the user with ID " + req.params.user_id));
         } else {
+            // return user datas before the update
             res.send(user_updated);
         }
-
     });
 });
 

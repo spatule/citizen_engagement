@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var app = require('../app');
 var Issue = require("../models/issue");
 
-// Middleware
+// Middleware used to retrieve an Issue from its ID. 
 var findIssueFromParam = function (req, res, next) {
     Issue.findOne({"_id": req.params.issue_id}, function (error, issue_found) {
         if (error) {
@@ -65,7 +65,7 @@ router.get('/:issue_id', findIssueFromParam, function (req, res, next) {
 router.get('/', function (req, res, next) {
     Issue.find({}, function (error, issues_from_user) {
         if (error) {
-            res.send(app.generateJsonErrorMessage("The issue with id " + req.query.issue_id + " could not be found."));
+            res.status(500).send(app.generateJsonErrorMessage("Unable to retrieve the issues"));
         } else {
             var issueMap = {};
             issues_from_user.forEach(function (issue) {
@@ -99,7 +99,7 @@ router.post('/', function (req, res, next) {
     var issue = new Issue(req.body);
     issue.save(function (error, saved_issue) {
         if (error) {
-            res.send(error);
+            res.status(500).send("Unable to save the issue (" + error + ")");
         } else {
             res.send(saved_issue);
         }
@@ -126,7 +126,7 @@ router.post('/', function (req, res, next) {
 router.patch('/:issue_id', function (req, res, next) {
     Issue.findByIdAndUpdate(req.params.issue_id, {$set: req.body}, {new : false, runValidators: true}, function (error, issue_updated) {
         if (error) {
-            res.send(app.generateJsonErrorMessage("Unable to update the user with ID " + req.params.issue_id));
+            res.status(500).send(app.generateJsonErrorMessage("Unable to update the user with ID " + req.params.issue_id));
         } else {
             res.send(issue_updated);
         }
