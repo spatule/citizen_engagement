@@ -60,7 +60,7 @@ router.get('/:issue_id', findIssueFromParam, function (req, res, next) {
  * @apiSuccess {Double} Issue.latitude Issue's latitude
  * @apiSuccess {Double} Issue.user The id of the user that created the issue
  * @apiSuccess {String} Issue.status The status of the issue
- * @apiError IssueNotFound The issue with <code>id</code> could not be found.
+ * @apiError IssuesFromUserNotFound The issues from the user could not be found.
  */
 router.get('/', function (req, res, next) {
     Issue.find({}, function (error, issues_from_user) {
@@ -78,6 +78,23 @@ router.get('/', function (req, res, next) {
     });
 });
 
+/**
+ * @api {post} /issue/ Insert a new issue.
+ * @apiVersion 1.0.0
+ * @apiName addIssue
+ * @apiGroup Issue
+ * @apiSuccess {Object} Issue Issue's informations
+ * @apiSuccess {String} Issue.Description Issue's description
+ * @apiSuccess {Date} Issue.createdAt Date when the issue was created
+ * @apiSuccess {Double} Issue._id Issue's id
+ * @apiSuccess {Array} Issue.tags Issue's tags
+ * @apiSuccess {String} Issue.imageUrl Path to the issue's image
+ * @apiSuccess {Double} Issue.longitude Issue's longitude
+ * @apiSuccess {Double} Issue.latitude Issue's latitude
+ * @apiSuccess {Double} Issue.user The id of the user that created the issue
+ * @apiSuccess {String} Issue.status The status of the issue
+ * @apiError IssueNotCreated The issue could not be created.
+ */
 router.post('/', function (req, res, next) {
     var issue = new Issue(req.body);
     issue.save(function (error, saved_issue) {
@@ -89,6 +106,23 @@ router.post('/', function (req, res, next) {
     });
 });
 
+/**
+ * @api {patch} /issue/:issue_id Update an existing issue
+ * @apiVersion 1.0.0
+ * @apiName updateIssue
+ * @apiGroup Issue
+ * @apiSuccess {Object} Issue Issue's informations
+ * @apiSuccess {String} Issue.Description Issue's description
+ * @apiSuccess {Date} Issue.createdAt Date when the issue was created
+ * @apiSuccess {Double} Issue._id Issue's id
+ * @apiSuccess {Array} Issue.tags Issue's tags
+ * @apiSuccess {String} Issue.imageUrl Path to the issue's image
+ * @apiSuccess {Double} Issue.longitude Issue's longitude
+ * @apiSuccess {Double} Issue.latitude Issue's latitude
+ * @apiSuccess {Double} Issue.user The id of the user that created the issue
+ * @apiSuccess {String} Issue.status The status of the issue
+ * @apiError IssueNotUpdated The issue could not be updated.
+ */
 router.patch('/:issue_id', function (req, res, next) {
     Issue.findByIdAndUpdate(req.params.issue_id, {$set: req.body}, {new : false, runValidators: true}, function (error, issue_updated) {
         if (error) {
@@ -99,6 +133,23 @@ router.patch('/:issue_id', function (req, res, next) {
     });
 });
 
+/**
+ * @api {delete} /issues/:issue_id Delete an existing issue
+ * @apiVersion 1.0.0
+ * @apiName deleteIssue
+ * @apiGroup Issue
+ * @apiSuccess {Object} Issue Issue's informations
+ * @apiSuccess {String} Issue.Description Issue's description
+ * @apiSuccess {Date} Issue.createdAt Date when the issue was created
+ * @apiSuccess {Double} Issue._id Issue's id
+ * @apiSuccess {Array} Issue.tags Issue's tags
+ * @apiSuccess {String} Issue.imageUrl Path to the issue's image
+ * @apiSuccess {Double} Issue.longitude Issue's longitude
+ * @apiSuccess {Double} Issue.latitude Issue's latitude
+ * @apiSuccess {Double} Issue.user The id of the user that created the issue
+ * @apiSuccess {String} Issue.status The status of the issue
+ * @apiError IssueNotDeleted The issue could not be deleted.
+ */
 router.delete('/:issue_id', function (req, res, next) {
     Issue.findByIdAndRemove(req.params.issue_id, (err, issue_removed) => {
         if (err)

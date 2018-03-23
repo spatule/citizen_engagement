@@ -33,8 +33,8 @@ var getAllUsers = function (req, res, next) {
  * @apiSuccess {String} User.role User's role
  * @apiSuccess {String} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
- * @apiSuccess {String} User.firstName First name of the user 
- * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiSuccess {String} User.firstName First name of the user
+ * @apiSuccess {String} User.lastName Last name of the user
  * @apiError UserNotFound The user with <code>id</code> could not be found.
  */
 router.get('/:user_id', function (req, res, next) {
@@ -57,8 +57,8 @@ router.get('/:user_id', function (req, res, next) {
  * @apiSuccess {String} User.role User's role
  * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
- * @apiSuccess {String} User.firstName First name of the user 
- * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiSuccess {String} User.firstName First name of the user
+ * @apiSuccess {String} User.lastName Last name of the user
  * @apiSuccess {Integer} User.issuesCount Additionnal field which is the number of issues reported by the user
  * @apiError UserNotFound The user with <code>id</code> could not be found.
  */
@@ -84,7 +84,7 @@ router.get('/', getAllUsers, function (req, res, next) {
     ], function (err, results) {
         const usersJson = users.map(user => user.toJSON());
 
-        // map issues count with the list of users got from DB and 
+        // map issues count with the list of users got from DB and
         results.forEach(function (result) {
             const resultId = result._id.toString();
             const correspondingUser = usersJson.find(user => user._id == resultId);
@@ -103,9 +103,9 @@ router.get('/', getAllUsers, function (req, res, next) {
  * @apiSuccess {String} User.role User's role
  * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
- * @apiSuccess {String} User.firstName First name of the user 
- * @apiSuccess {String} User.lastName Last name of the user 
- * @apiError UsersNotCreated The users could not be created.
+ * @apiSuccess {String} User.firstName First name of the user
+ * @apiSuccess {String} User.lastName Last name of the user
+ * @apiError UserNotCreated The user could not be created.
  */
 router.post('/', function (req, res, next) {
     var user = new User(req.body);
@@ -127,8 +127,8 @@ router.post('/', function (req, res, next) {
  * @apiSuccess {String} User.role User's role
  * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
- * @apiSuccess {String} User.firstName First name of the user 
- * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiSuccess {String} User.firstName First name of the user
+ * @apiSuccess {String} User.lastName Last name of the user
  * @apiError UserNotUpdated Unable to update the user with ID <code>id</code>
  */
 router.patch('/:user_id', function (req, res, next) {
@@ -151,8 +151,8 @@ router.patch('/:user_id', function (req, res, next) {
  * @apiSuccess {String} User.role User's role
  * @apiSuccess {Date} User.createdAt Date when the user was created
  * @apiSuccess {String} User._id User's id
- * @apiSuccess {String} User.firstName First name of the user 
- * @apiSuccess {String} User.lastName Last name of the user 
+ * @apiSuccess {String} User.firstName First name of the user
+ * @apiSuccess {String} User.lastName Last name of the user
  * @apiError UserNotDeleted The users could not be deleted.
  */
 router.delete('/:user_id', function (req, res, next) {
