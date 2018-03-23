@@ -11,5 +11,5 @@ If you wish to have an ApiDoc for this project, go into the cloned project folde
 
 `npm run apidoc`
 
-It will create a "docs/" folder into the project folder. Into the "docs/" folder, 
-open the file `index.html` in order to view the generated ApiDoc.
+It will create a **docs/** folder into the project folder. Into the **docs/** folder, 
+open the file **index.html** in order to see the generated ApiDoc.
