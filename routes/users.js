@@ -21,6 +21,24 @@ var getAllUsers = function (req, res, next) {
     });
 };
 
+var getUserFromParam = function (req, res, next) {
+    User.findOne({"_id": req.params.user_id}, function (error, user_found) {
+        if (error) {
+            if (mongoose.Types.ObjectId.isValid(req.params.user_id)) {
+                res.status(500).send(app.generateJsonErrorMessage("Unexpected error with Database"));
+            } else {
+                res.status(404).send(app.generateJsonErrorMessage("The user with id " + req.params.user_id + " could not be found (Id not valid)."));
+            }
+
+        } else if (user_found === null) {
+            res.status(404).send(app.generateJsonErrorMessage("The user with id " + req.params.user_id + " could not be found."));
+        } else {
+            req.user = user_found;
+            next();
+        }
+    });
+};
+
 /* GET users listing. */
 
 /**
@@ -37,15 +55,8 @@ var getAllUsers = function (req, res, next) {
  * @apiSuccess {String} User.lastName Last name of the user 
  * @apiError UserNotFound The user with <code>id</code> could not be found.
  */
-router.get('/:user_id', function (req, res, next) {
-    User.findOne({"_id": req.params.user_id}, function (error, user_found) {
-        if (error) {
-            // err status 404
-            res.send(app.generateJsonErrorMessage("The user with id " + req.params.user_id + " could not be found."));
-        } else {
-            res.send(user_found);
-        }
-    });
+router.get('/:user_id', getUserFromParam, function (req, res, next) {
+    res.send(req.user);
 });
 
 /**
