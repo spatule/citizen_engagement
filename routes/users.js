@@ -111,7 +111,11 @@ router.post('/', function (req, res, next) {
     var user = new User(req.body);
     user.save(function (error, saved_user) {
         if (error) {
-            res.send(app.generateJsonErrorMessage("The users could not be created."));
+            if(error.name = "BulkWriteError") {
+               res.status(422).send("User " + req.body.firstName +" "+ req.body.lastName + " already exists!")
+            } else {
+                res.send(app.generateJsonErrorMessage("The user could not be created."));
+            } 
         } else {
             res.send(saved_user);
         }
@@ -155,29 +159,13 @@ router.patch('/:user_id', function (req, res, next) {
  * @apiSuccess {String} User.lastName Last name of the user
  * @apiError UserNotDeleted The users could not be deleted.
  */
+
 router.delete('/:user_id', function (req, res, next) {
-    const userId = req.params.user_id;
-    User.findOne({"_id": userId}, function (error, user_found) {
-        if (error) {
-            if (ObjectId.isValid(userId)) {
-                res.send(error);
-            } else {
-                next(error);
-            }
-        } else if (user_found) {
-            user_found.remove(function (error) {
-                if (error) {
-                    return next(error);
-                }
-                debug(`Deleted user "${user_found.firstName},${user_found.lastName}"`);
-                res.sendStatus(204);
-            });
-        } else {
-            res.status(404);
-            res.send(app.generateJsonErrorMessage("The user with id " + userId + " could not be found."));
-        }
+    User.findByIdAndRemove(req.params.user_id, (err, user_removed) => {
+        if (err)
+            return res.status(500).send(app.generateJsonErrorMessage("Unable to delete the user with ID " + user_removed._id));
+        res.status(200).send(user_removed);
     });
 });
-
 
 module.exports = router;

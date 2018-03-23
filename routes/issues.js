@@ -154,7 +154,7 @@ router.delete('/:issue_id', function (req, res, next) {
     Issue.findByIdAndRemove(req.params.issue_id, (err, issue_removed) => {
         if (err)
             return res.status(500).send(app.generateJsonErrorMessage("Unable to delete the issue with ID " + issue_removed._id));
-        return res.status(200).send(issue_removed);
+        res.status(200).send(issue_removed);
     });
 });
 module.exports = router;
